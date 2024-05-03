@@ -22,7 +22,10 @@ export function LoginPage() {
                 <Form.Control id="emailText" type="email" placeholder="Enter email" onChange={(e) => setUsrnm(e.target.value)}/>
             </Form.Group>
 
-            <Button variant="primary" type="submit" onClick={() => dispatch(login(usrnm))}>
+            <Button variant="primary" type="submit" onClick={() => {
+                dispatch(login(usrnm));
+                fetch(`http://localhost:5128/Test/SaveUser/${usrnm}`);
+            }}>
                 Authorize
             </Button>
         </Form>

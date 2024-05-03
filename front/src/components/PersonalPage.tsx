@@ -19,7 +19,10 @@ export function PersonalPage() {
     return (
         <div className="personal-info">
             <h2>Hello, {username}!</h2>
-            <Button variant="primary" onClick={() => dispatch(logout())}>
+            <Button variant="primary" onClick={() => {
+                dispatch(logout());
+                fetch("http://localhost:5128/Test/SaveUser/@");
+            }}>
                 Logout
             </Button>
         </div>

@@ -1,5 +1,7 @@
 var builder = WebApplication.CreateBuilder(args);
 
+// builder.Services.AddTransient<ISaveUserService, SimpleSaveUserService>();
+
 builder.Services.AddCors(options => options.AddPolicy
     (
         "ShopApiPolicy", b => b

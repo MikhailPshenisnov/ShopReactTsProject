@@ -9,6 +9,11 @@ import {ItemPage} from "./components/ItemPage.tsx";
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
 import {LoginPage} from "./components/LoginPage.tsx";
 import {PersonalPage} from "./components/PersonalPage.tsx";
+// import {useAppDispatch, useAppSelector} from "./redux/Hooks.tsx";
+// import {login} from "./redux/AuthSlice.tsx";
+import {UsernameType} from "./components/UsernameType.tsx";
+import {useAppDispatch} from "./redux/Hooks.tsx";
+import {login} from "./redux/AuthSlice.tsx";
 
 export function App() {
     const [data, setData] = useState<Pokedex[]>([]);
@@ -18,18 +23,26 @@ export function App() {
     const [isOneItemMode, setIsOneItemMode] = useState<boolean>(false);
     const [curOneItem, setCurOneItem] = useState<Pokedex>();
 
-    // useEffect(() => {
-    //     fetch('https://fakestoreapi.com/products')
-    //         .then((res) => res.json())
-    //         .then((json) => setData(json));
-    // }, [])
-
+    const dispatch = useAppDispatch();
+    // const is_logged_in = useAppSelector((state) => state.auth.isLoggedIn);
+    // const username = useAppSelector((state) => state.auth.username);
+    const [curUser, setCurUser] = useState<UsernameType>( {username: ""});
+    
     useEffect(() => {
         fetch('http://localhost:5128/Test/GetProducts')
             .then((res) => res.json())
             .then((json) => setData(json));
+
+        fetch('http://localhost:5128/Test/GetUser')
+            .then((res) => res.json())
+            .then((json) => setCurUser(json));
     }, [])
 
+    useEffect(() => {
+        if (curUser.username !== "") {
+            dispatch(login(curUser.username))
+        }
+    }, [curUser]);
 
     useEffect(() => {
         if (curCategory === Category.All) {
@@ -37,8 +50,6 @@ export function App() {
         } else {
             setCurData(data.filter(el => el.category === curCategory));
         }
-        console.log(data);
-
     }, [curCategory, data]);
 
     function addToOrder(newItem: Pokedex) {
