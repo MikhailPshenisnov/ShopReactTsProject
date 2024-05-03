@@ -18,11 +18,18 @@ export function App() {
     const [isOneItemMode, setIsOneItemMode] = useState<boolean>(false);
     const [curOneItem, setCurOneItem] = useState<Pokedex>();
 
+    // useEffect(() => {
+    //     fetch('https://fakestoreapi.com/products')
+    //         .then((res) => res.json())
+    //         .then((json) => setData(json));
+    // }, [])
+
     useEffect(() => {
-        fetch('https://fakestoreapi.com/products')
+        fetch('http://localhost:5128/Test/GetProducts')
             .then((res) => res.json())
             .then((json) => setData(json));
     }, [])
+
 
     useEffect(() => {
         if (curCategory === Category.All) {
