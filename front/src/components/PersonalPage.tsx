@@ -3,6 +3,7 @@ import {useAppDispatch, useAppSelector} from "../redux/Hooks.tsx";
 import {logout} from "../redux/AuthSlice.tsx";
 import {useEffect} from "react";
 import {useNavigate} from "react-router-dom";
+import {SaveUserApi} from "../api/AppApi.tsx";
 
 export function PersonalPage() {
     const dispatch = useAppDispatch();
@@ -21,7 +22,7 @@ export function PersonalPage() {
             <h2>Hello, {username}!</h2>
             <Button variant="primary" onClick={() => {
                 dispatch(logout());
-                fetch("http://localhost:5128/Test/SaveUser/@");
+                SaveUserApi("@");
             }}>
                 Logout
             </Button>

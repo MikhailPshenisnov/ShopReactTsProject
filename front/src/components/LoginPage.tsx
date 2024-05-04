@@ -3,6 +3,7 @@ import {useAppDispatch, useAppSelector} from "../redux/Hooks.tsx";
 import {login} from "../redux/AuthSlice.tsx";
 import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
+import {SaveUserApi} from "../api/AppApi.tsx";
 
 export function LoginPage() {
     const dispatch = useAppDispatch();
@@ -24,7 +25,7 @@ export function LoginPage() {
 
             <Button variant="primary" type="submit" onClick={() => {
                 dispatch(login(usrnm));
-                fetch(`http://localhost:5128/Test/SaveUser/${usrnm}`);
+                SaveUserApi(usrnm);
             }}>
                 Authorize
             </Button>

@@ -9,33 +9,32 @@ import {ItemPage} from "./components/ItemPage.tsx";
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
 import {LoginPage} from "./components/LoginPage.tsx";
 import {PersonalPage} from "./components/PersonalPage.tsx";
-// import {useAppDispatch, useAppSelector} from "./redux/Hooks.tsx";
-// import {login} from "./redux/AuthSlice.tsx";
 import {UsernameType} from "./components/UsernameType.tsx";
 import {useAppDispatch} from "./redux/Hooks.tsx";
 import {login} from "./redux/AuthSlice.tsx";
+import {GetProductsApi, GetUserApi} from "./api/AppApi.tsx";
+
 
 export function App() {
     const [data, setData] = useState<Pokedex[]>([]);
     const [orders, setOrders] = useState<Pokedex[]>([]);
     const [curCategory, setCurCategory] = useState<Category>(Category.All);
     const [curData, setCurData] = useState<Pokedex[]>([]);
+
     const [isOneItemMode, setIsOneItemMode] = useState<boolean>(false);
     const [curOneItem, setCurOneItem] = useState<Pokedex>();
 
     const dispatch = useAppDispatch();
-    // const is_logged_in = useAppSelector((state) => state.auth.isLoggedIn);
-    // const username = useAppSelector((state) => state.auth.username);
     const [curUser, setCurUser] = useState<UsernameType>( {username: ""});
     
     useEffect(() => {
-        fetch('http://localhost:5128/Test/GetProducts')
-            .then((res) => res.json())
-            .then((json) => setData(json));
+        GetProductsApi().then((res) => {
+            setData(res.data);
+        });
 
-        fetch('http://localhost:5128/Test/GetUser')
-            .then((res) => res.json())
-            .then((json) => setCurUser(json));
+        GetUserApi().then((res) => {
+            setCurUser(res.data);
+        });
     }, [])
 
     useEffect(() => {
