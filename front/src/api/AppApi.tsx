@@ -16,3 +16,7 @@ export function GetUserApi(){
 export function SaveUserApi(username: string){
     return appApiIns.get(`SaveUser/${username}`);
 }
+
+export function SetSomeCookiesApi(username: string){
+    return appApiIns.get(`CookiesTest/${username}`);
+}

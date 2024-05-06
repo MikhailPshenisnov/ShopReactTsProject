@@ -12,7 +12,7 @@ import {PersonalPage} from "./components/PersonalPage.tsx";
 import {UsernameType} from "./components/UsernameType.tsx";
 import {useAppDispatch} from "./redux/Hooks.tsx";
 import {login} from "./redux/AuthSlice.tsx";
-import {GetProductsApi, GetUserApi} from "./api/AppApi.tsx";
+import {GetProductsApi, GetUserApi, SetSomeCookiesApi} from "./api/AppApi.tsx";
 
 
 export function App() {
@@ -26,6 +26,8 @@ export function App() {
 
     const dispatch = useAppDispatch();
     const [curUser, setCurUser] = useState<UsernameType>( {username: ""});
+
+    // const [cookieUsername, setCookieUsername] = useState<AxiosResponseHeaders>();
     
     useEffect(() => {
         GetProductsApi().then((res) => {
@@ -35,6 +37,12 @@ export function App() {
         GetUserApi().then((res) => {
             setCurUser(res.data);
         });
+
+        SetSomeCookiesApi("oleg").then((res) => {
+            // setCookieUsername(res.headers)
+            console.log(res.headers);
+            console.log(res.headers["set-cookie"])
+        })
     }, [])
 
     useEffect(() => {

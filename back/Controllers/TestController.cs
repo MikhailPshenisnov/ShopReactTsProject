@@ -44,4 +44,19 @@ public class TestController : ControllerBase
         var result = "{\"username\":\"" + $"{StaticStorage.CurUser}" + "\"}";
         return Ok(result);
     }
+
+    [HttpGet("{username}")]
+    public IActionResult CookiesTest(string username)
+    {
+        var cookies = HttpContext.Request.Cookies;
+        
+        if (cookies.TryGetValue("username", out var usrnm))
+        {
+            HttpContext.Response.Cookies.Append("username", username);
+            return Ok($"{usrnm} -> {username}");
+        }
+
+        HttpContext.Response.Cookies.Append("username", username);
+        return Ok($"\"\" -> {username}");
+    }
 }
