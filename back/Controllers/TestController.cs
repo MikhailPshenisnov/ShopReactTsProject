@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Net.Http.Headers;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace back.Controllers;
 
@@ -12,51 +10,47 @@ public class TestController : ControllerBase
     public async Task<IActionResult> GetProducts()
     {
         using var client = new HttpClient();
-        
+
         client.BaseAddress = new Uri("https://fakestoreapi.com/");
         var request = new HttpRequestMessage(HttpMethod.Get, "/products");
-        
+
         using var response = await client.SendAsync(request);
-        
+
         if (!response.IsSuccessStatusCode) return BadRequest();
-        
+
         var json = await response.Content.ReadAsStringAsync();
         return Ok(json);
     }
-    
-    [HttpGet("{username}")]
-    public IActionResult SaveUser(string username)
+
+    [HttpGet("{username?}")]
+    public IActionResult SaveUser(string? username)
     {
-        if (username.Contains("@"))
+        if (username is null)
         {
-            StaticStorage.CurUser = "";
+            HttpContext.Response.Cookies.Append("username", "");
+            return Ok();
         }
-        else
-        {
-            StaticStorage.CurUser = username;
-        }
-        return Ok(StaticStorage.CurUser);
+
+        if (username.Length < 4 || username.Any(char.IsPunctuation)) return Ok("incorrect_login");
+        HttpContext.Response.Cookies.Append("username", username);
+        return Ok();
     }
-    
+
     [HttpGet]
     public IActionResult GetUser()
     {
-        var result = "{\"username\":\"" + $"{StaticStorage.CurUser}" + "\"}";
+        var cookies = HttpContext.Request.Cookies;
+        cookies.TryGetValue("username", out var curUsername);
+        var result = "{\"username\":\"" + $"{curUsername ?? ""}" + "\"}";
         return Ok(result);
     }
 
-    [HttpGet("{username}")]
-    public IActionResult CookiesTest(string username)
+    [HttpGet]
+    public IActionResult SetEmptyCookies()
     {
         var cookies = HttpContext.Request.Cookies;
-        
-        if (cookies.TryGetValue("username", out var usrnm))
-        {
-            HttpContext.Response.Cookies.Append("username", username);
-            return Ok($"{usrnm} -> {username}");
-        }
-
-        HttpContext.Response.Cookies.Append("username", username);
-        return Ok($"\"\" -> {username}");
+        if (!cookies.TryGetValue("username", out _))
+            HttpContext.Response.Cookies.Append("username", "");
+        return Ok();
     }
 }

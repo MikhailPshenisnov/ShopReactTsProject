@@ -22,7 +22,7 @@ export function PersonalPage() {
             <h2>Hello, {username}!</h2>
             <Button variant="primary" onClick={() => {
                 dispatch(logout());
-                SaveUserApi("@");
+                SaveUserApi(null);
             }}>
                 Logout
             </Button>
