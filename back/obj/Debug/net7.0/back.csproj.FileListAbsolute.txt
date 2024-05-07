@@ -64,3 +64,8 @@ C:\Users\misha\WebstormProjects\ShopReactTsProject\back\obj\Debug\net7.0\refint\
 C:\Users\misha\WebstormProjects\ShopReactTsProject\back\obj\Debug\net7.0\back.pdb
 C:\Users\misha\WebstormProjects\ShopReactTsProject\back\obj\Debug\net7.0\back.genruntimeconfig.cache
 C:\Users\misha\WebstormProjects\ShopReactTsProject\back\obj\Debug\net7.0\ref\back.dll
+C:\Users\misha\WebstormProjects\ShopReactTsProject\back\bin\Debug\net7.0\Microsoft.EntityFrameworkCore.dll
+C:\Users\misha\WebstormProjects\ShopReactTsProject\back\bin\Debug\net7.0\Microsoft.EntityFrameworkCore.Abstractions.dll
+C:\Users\misha\WebstormProjects\ShopReactTsProject\back\bin\Debug\net7.0\Microsoft.EntityFrameworkCore.Relational.dll
+C:\Users\misha\WebstormProjects\ShopReactTsProject\back\bin\Debug\net7.0\Npgsql.dll
+C:\Users\misha\WebstormProjects\ShopReactTsProject\back\bin\Debug\net7.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll

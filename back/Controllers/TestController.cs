@@ -53,4 +53,11 @@ public class TestController : ControllerBase
             HttpContext.Response.Cookies.Append("username", "");
         return Ok();
     }
+    
+    [HttpGet("{username}/{password}/{cart}/{end_date}")]
+    public IActionResult TestDbRequest(string username, string password, string cart, string end_date)
+    {
+        DbFunctions.AddUser(username, password, cart, end_date);
+        return Ok();
+    }
 }
