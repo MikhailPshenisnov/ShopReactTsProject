@@ -2,23 +2,50 @@
 
 public static class DbFunctions
 {
-    public static void AddUser(string username, string password, string cart, string end_date)
+    public static int AddUser(string username, string password, string cart, DateOnly endDate)
     {
-        using (var dbContext = new ApplicationDbContext())
+        using var dbContext = new ApplicationDbContext();
+
+        var addedUser = dbContext.users.Add(new User()
+            { username = username, password = password, cart = cart, end_date = endDate });
+        dbContext.SaveChanges();
+
+        return addedUser.Entity.id;
+    }
+
+    public static void MakeConstUser(int id, string username, string password)
+    {
+        using var dbContext = new ApplicationDbContext();
+
+        var userToUpdate = (from user in dbContext.users
+            where user.id == id
+            select user).First();
+
+        if (userToUpdate is null) throw new Exception("Неизвестный пользователь!");
+
+        userToUpdate.username = username;
+        userToUpdate.password = password;
+        userToUpdate.end_date = DateOnly.FromDateTime(DateTime.Now).AddYears(2);
+
+        dbContext.SaveChanges();
+    }
+
+    public static void DeleteExpiredUsers()
+    {
+        if (DateChecker.IsReadyForNextCheck())
         {
-            dbContext.users.Add(new User()
-                { username = username, password = password, cart = cart, end_date = end_date });
-            dbContext.SaveChanges();
+            var curDate = DateOnly.FromDateTime(DateTime.Now);
+
+            using var dbContext = new ApplicationDbContext();
             
-            var data = from user in dbContext.users
-                select user;
-            foreach (var user in data)
+            var usersToDelete = from user in dbContext.users select user;
+
+            foreach (var user in usersToDelete)
             {
-                Console.WriteLine(user.username + " " + user.password);
+                if (DateChecker.IsDateExpired(user.end_date)) dbContext.users.Remove(user);
             }
+
+            dbContext.SaveChanges();
         }
     }
-    // public static void MakeConstUser(){}
-    // public static void DeleteOldTemporaryUsers(){}
-    
 }

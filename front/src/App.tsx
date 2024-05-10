@@ -40,18 +40,18 @@ export function App() {
     }, [])
 
     useEffect(() => {
-        if (curUser.username !== "") {
-            dispatch(login(curUser.username))
-        }
-    }, [curUser]);
-
-    useEffect(() => {
         if (curCategory === Category.All) {
             setCurData(data);
         } else {
             setCurData(data.filter(el => el.category === curCategory));
         }
     }, [curCategory, data]);
+
+    useEffect(() => {
+        if (curUser.username !== "") {
+            dispatch(login(curUser.username))
+        }
+    }, [curUser]);
 
     function addToOrder(newItem: Pokedex) {
         let flag: boolean = false;

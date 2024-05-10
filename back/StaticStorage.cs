@@ -2,5 +2,5 @@
 
 public static class StaticStorage
 {
-    public static string CurUser { get; set; } = "";
+    public static DateOnly? lastCheckDate { get; set; }
 }

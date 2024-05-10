@@ -53,11 +53,27 @@ public class TestController : ControllerBase
             HttpContext.Response.Cookies.Append("username", "");
         return Ok();
     }
-    
-    [HttpGet("{username}/{password}/{cart}/{end_date}")]
-    public IActionResult TestDbRequest(string username, string password, string cart, string end_date)
+
+    [HttpPost]
+    public IActionResult TestDbRequest()
     {
-        DbFunctions.AddUser(username, password, cart, end_date);
-        return Ok();
+        DbFunctions.DeleteExpiredUsers();
+        
+        var headers = HttpContext.Request.Headers;
+        if (headers.TryGetValue("username", out var username)
+            && headers.TryGetValue("password", out var password)
+            && headers.TryGetValue("cart", out var cart))
+        {
+            if (username == "" ^ password == "") return BadRequest("Пароль без логина или логин без пароля!");
+
+            var date = username == ""
+                ? DateOnly.FromDateTime(DateTime.Now).AddDays(3)
+                : DateOnly.FromDateTime(DateTime.Now).AddYears(2);
+
+            DbFunctions.AddUser(username!, password!, cart!, date);
+            return Ok();
+        }
+
+        return BadRequest("Некорректные заголовки");
     }
 }
