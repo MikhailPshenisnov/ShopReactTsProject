@@ -21,7 +21,7 @@ public static class DbFunctions
             where user.id == id
             select user).First();
 
-        if (userToUpdate is null) throw new Exception("Неизвестный пользователь!");
+        if (userToUpdate is null) throw new Exception("incorrect_user_id");
 
         userToUpdate.username = username;
         userToUpdate.password = password;
@@ -47,5 +47,39 @@ public static class DbFunctions
 
             dbContext.SaveChanges();
         }
+    }
+
+    public static bool IsUsernameFree(string username)
+    {
+        if (username == "") return true;
+        
+        using var dbContext = new ApplicationDbContext();
+        var users = from user in dbContext.users 
+            where user.username == username 
+            select user;
+
+        if (users.Any()) return false;
+
+        return true;
+    }
+
+    public static User? TryLoginUser(string username, string password)
+    {
+        using var dbContext = new ApplicationDbContext();
+        var userList = from user in dbContext.users 
+            where user.username == username && user.password == password 
+            select user;
+        return userList.Any() ? userList.First() : null;
+    }
+
+    public static void UpdateUserCart(int userId, string userCart)
+    {
+        using var dbContext = new ApplicationDbContext();
+        var users = from user in dbContext.users
+            where user.id == userId
+            select user;
+        if (!users.Any()) throw new Exception("incorrect_user_id");
+        users.First().cart = userCart;
+        dbContext.SaveChanges();
     }
 }

@@ -41,8 +41,11 @@ public static class DateChecker
         if (res)
         {
             using var fs = File.Create("LastCheckDate.txt");
+            fs.Close();
+            
             using var sw = new StreamWriter(fs);
             sw.Write(DateOnly.FromDateTime(DateTime.Now).ToString());
+            sw.Close();
 
             StaticStorage.lastCheckDate = DateOnly.FromDateTime(DateTime.Now);
         }
