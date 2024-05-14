@@ -1,7 +1,12 @@
 import {Pokedex} from "./Pokedex.tsx";
 import {Item} from "./Item.tsx";
 
-type ItemsProps = {curData: Pokedex[], onAdd: (newItem: Pokedex) => void, onShowItemPage: (product: Pokedex) => void};
+type ItemsProps = {
+    curData: Pokedex[],
+    onAdd: (newItem: Pokedex) => void,
+    onShowItemPage: (product: Pokedex) => void
+};
+
 
 export function Items(props: ItemsProps) {
     return (

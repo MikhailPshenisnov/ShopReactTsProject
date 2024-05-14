@@ -1,7 +1,10 @@
 import {Pokedex} from "./Pokedex.tsx";
 import {FaTrash} from "react-icons/fa6";
 
-type OrderProps = { product: Pokedex, onDelete: (deleteItemId: number) => void};
+type OrderProps = {
+    product: Pokedex,
+    onDelete: (deleteItemId: number) => void
+};
 
 export function Order(props: OrderProps) {
     return (

@@ -5,6 +5,17 @@ namespace back;
 
 public class User
 {
+    public User() {}
+    public User(int id, string username, string password, string cart, DateOnly end_date)
+    {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+        this.cart = cart;
+        this.end_date = end_date;
+
+    }
+    
     [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int id { get; set; }
     

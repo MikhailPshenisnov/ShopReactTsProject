@@ -1,47 +1,87 @@
 import {Button, Form} from "react-bootstrap";
 import {useAppDispatch, useAppSelector} from "../redux/Hooks.tsx";
-import {login} from "../redux/AuthSlice.tsx";
+import {setCart, setIsLoggedIn, setUsername} from "../redux/AuthSlice.tsx";
 import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
-import {SaveUserApi} from "../api/AppApi.tsx";
+import {GetUserApi, LoginUserApi, RegisterUserApi} from "../api/AppApi.tsx";
+import {CurUserType} from "./UsernameType.tsx";
+
 
 export function LoginPage() {
     const dispatch = useAppDispatch();
-    const is_logged_in = useAppSelector((state) => state.auth.isLoggedIn);
+    const auth = useAppSelector((state) => state.auth);
     const navigate = useNavigate();
     const [usrnm, setUsrnm] = useState<string>("");
-
-    const [loginError, setLoginError] = useState<boolean>(false);
+    const [pswd, setPswd] = useState<string>("");
+    const [errorMessage, setErrorMessage] = useState<string>("");
+    const [tmpUserData, setTmpUserData] = useState<CurUserType>({username: auth.username, cart: auth.cart});
 
     useEffect(() => {
-        if (is_logged_in){
+        if (auth.isLoggedIn) {
             navigate("/personal_page")
         }
-    }, [is_logged_in]);
+    }, [auth.isLoggedIn]);
+
+    useEffect(() => {
+        dispatch(setUsername(tmpUserData.username));
+        dispatch(setCart(tmpUserData.cart));
+        if (tmpUserData.username != "") {
+            dispatch(setIsLoggedIn(true));
+        } else {
+            dispatch(setIsLoggedIn(false));
+        }
+    }, [tmpUserData]);
 
     return (
         <Form id="loginform">
             <Form.Group className="mb-3">
-                <Form.Control id="emailText" type="email" placeholder="Enter email" onChange={(e) => setUsrnm(e.target.value)}/>
-                {loginError && (
-                    <h1>Некорректный логин</h1>
-                )}
+                <div className="login_password_group">
+                    <div className="text_labels">
+                        <Form.Control id="usernameText" type="login" placeholder="Enter username..." onChange={
+                            (e) => setUsrnm(e.target.value)
+                        }/>
+                        <Form.Control id="passwordText" type="password" placeholder="Enter password..." onChange={
+                            (e) => setPswd(e.target.value)
+                        }/>
+                    </div>
+
+                    {errorMessage !== "" && (
+                        <h2>{errorMessage}</h2>
+                    )}
+                </div>
             </Form.Group>
 
-            <Button variant="primary" type="submit" onClick={() => {
-                SaveUserApi(usrnm)
-                    .then((res) => {
-                        if (res.data === "incorrect_login") {
-                            setLoginError(true)
-                        }
-                        else {
-                            setLoginError(false)
-                            dispatch(login(usrnm));
-                        }
-                    });
-            }}>
-                Authorize
-            </Button>
+            <div className="button_group">
+                <Button variant="primary" type="button" onClick={() => {
+                    LoginUserApi(usrnm, pswd)
+                        .then((res) => {
+                            if (res.data !== "") {
+                                setErrorMessage(res.data)
+                            } else {
+                                setErrorMessage("")
+                                GetUserApi()
+                                    .then((res) => {
+                                        setTmpUserData(res.data);
+                                    });
+                            }
+                        });
+                }}>Login</Button>
+
+                <Button variant="primary" type="button" onClick={() => {
+                    RegisterUserApi(usrnm, pswd)
+                        .then((res) => {
+                            if (res.data !== "") {
+                                setErrorMessage(res.data)
+                            } else {
+                                setErrorMessage("")
+                                GetUserApi()
+                                    .then((res) => {
+                                        setTmpUserData(res.data);
+                                    });
+                            }
+                        });
+                }}>Register</Button>
+            </div>
         </Form>
     )
 }

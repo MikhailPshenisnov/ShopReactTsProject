@@ -1,11 +1,10 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace back.Controllers;
 
 [ApiController]
 [Route("[controller]/[action]")]
-public class TestController : ControllerBase
+public class ShopApiController : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> GetProducts()
@@ -23,21 +22,21 @@ public class TestController : ControllerBase
         return Ok(json);
     }
 
-    [HttpGet("{username?}")]
-    public IActionResult SaveUser(string? username)
-    {
-        if (username is null)
-        {
-            HttpContext.Response.Cookies.Append("username", "");
-            return Ok();
-        }
+    // [HttpGet("{username?}")]
+    // public IActionResult SaveUser(string? username)
+    // {
+    //     if (username is null)
+    //     {
+    //         HttpContext.Response.Cookies.Append("username", "");
+    //         return Ok();
+    //     }
+    //
+    //     if (username.Length < 4 || username.Any(char.IsPunctuation)) return Ok("incorrect_login");
+    //     HttpContext.Response.Cookies.Append("username", username);
+    //     return Ok();
+    // }
 
-        if (username.Length < 4 || username.Any(char.IsPunctuation)) return Ok("incorrect_login");
-        HttpContext.Response.Cookies.Append("username", username);
-        return Ok();
-    }
-
-    [HttpPost]
+    [HttpGet]
     public IActionResult RegisterUser()
     {
         var headers = HttpContext.Request.Headers;
@@ -50,65 +49,67 @@ public class TestController : ControllerBase
 
             if (username == "" || password == "") return Ok("fill_in_your_login_and_password");
 
-            if (username.Count < 6
+            if (username.ToString().Length < 6
                 || username.ToString().Any(char.IsPunctuation))
-                return Ok("incorrect_login");
+                return Ok("incorrect_login_or_password");
 
-            if (password.Count < 8
+            if (password.ToString().Length < 8
                 || !password.ToString().Any(char.IsLetter)
                 || !password.ToString().Any(char.IsDigit)
                 || !password.ToString().Any(char.IsPunctuation)
                 || !password.ToString().Any(char.IsLower)
                 || !password.ToString().Any(char.IsUpper))
-                return Ok("incorrect_login");
+                return Ok("incorrect_login_or_password");
 
             if (!DbFunctions.IsUsernameFree(username!)) return Ok("login_has_already_been_used");
 
             DbFunctions.MakeConstUser(int.Parse(curUserId), username!, password!);
             HttpContext.Response.Cookies.Append("username", username!);
 
-            return Ok();
+            return Ok("");
         }
 
         return BadRequest("incorrect_headers");
     }
 
-    [HttpPost]
+    [HttpGet]
     public IActionResult LoginUser()
     {
         var headers = HttpContext.Request.Headers;
         if (headers.TryGetValue("username", out var username)
             && headers.TryGetValue("password", out var password))
         {
-            // var cookies = HttpContext.Request.Cookies;
-            // cookies.TryGetValue("cart", out var curCart);
-            // curCart ??= "";
+            var cookies = HttpContext.Request.Cookies;
+            cookies.TryGetValue("cart", out var curCart);
+            curCart ??= "";
+            cookies.TryGetValue("username", out var curUsername);
+            curUsername ??= "";
 
             if (username == "" || password == "") return Ok("fill_in_your_login_and_password");
 
-            if (username.Count < 6
-                || username.ToString().Any(char.IsPunctuation))
-                return Ok("incorrect_login");
+            if (username.ToString().Length < 6
+                || username.ToString().Any(char.IsPunctuation)) 
+                return Ok("incorrect_login_or_password");
 
-            if (password.Count < 8
+            if (password.ToString().Length < 8
                 || !password.ToString().Any(char.IsLetter)
                 || !password.ToString().Any(char.IsDigit)
                 || !password.ToString().Any(char.IsPunctuation)
                 || !password.ToString().Any(char.IsLower)
-                || !password.ToString().Any(char.IsUpper))
-                return Ok("incorrect_login");
+                || !password.ToString().Any(char.IsUpper)) 
+                return Ok("incorrect_login_or_password");
 
             var tmpUser = DbFunctions.TryLoginUser(username!, password!);
-            
+
             if (tmpUser is null)
                 return Ok("incorrect_account_login_or_password");
             
+            var newCart = curUsername == "" ? DbFunctions.CombineCart(curCart, tmpUser.cart) : tmpUser.cart;
+            
             HttpContext.Response.Cookies.Append("id", tmpUser.id.ToString());
             HttpContext.Response.Cookies.Append("username", tmpUser.username);
-            // update cart (curCart from cookies + tmpUser cart)
-            HttpContext.Response.Cookies.Append("cart", tmpUser.cart);
-
-            return Ok();
+            HttpContext.Response.Cookies.Append("cart", newCart);
+            return Ok("");
         }
 
         return BadRequest("incorrect_headers");
@@ -121,12 +122,14 @@ public class TestController : ControllerBase
         HttpContext.Response.Cookies.Append("username", "");
         HttpContext.Response.Cookies.Append("cart", "");
         InitializeUser("", "", "");
-        return Ok();
+        return Ok("");
     }
 
     [HttpGet]
     public IActionResult GetUser()
     {
+        DbFunctions.DeleteExpiredUsers();
+
         var cookies = HttpContext.Request.Cookies;
         cookies.TryGetValue("id", out var curId);
         cookies.TryGetValue("username", out var curUsername);
@@ -137,13 +140,13 @@ public class TestController : ControllerBase
         curCart ??= "";
 
         if (curId == "") return InitializeUser("", "", "");
-        
+
         var result =
             "{" +
             "\"username\":\"" + $"{curUsername}" + "\"," +
             "\"cart\":\"" + $"{curCart}" + "\"" +
             "}";
-        
+
         return Ok(result);
     }
 
@@ -154,7 +157,7 @@ public class TestController : ControllerBase
         HttpContext.Response.Cookies.Append("id", addedUserId.ToString());
         HttpContext.Response.Cookies.Append("username", username);
         HttpContext.Response.Cookies.Append("cart", cart);
-        return Ok();
+        return Ok("");
     }
 
     [HttpGet]
@@ -167,56 +170,59 @@ public class TestController : ControllerBase
             HttpContext.Response.Cookies.Append("username", "");
         if (!cookies.TryGetValue("cart", out _))
             HttpContext.Response.Cookies.Append("cart", "");
-        return Ok();
+        return Ok("");
     }
 
     [HttpGet]
     public IActionResult UpdateUserCart()
     {
-        var cookies = HttpContext.Request.Cookies;
-        cookies.TryGetValue("id", out var curId);
-        cookies.TryGetValue("username", out var curUsername);
-        cookies.TryGetValue("cart", out var curCart);
-
-        curId ??= "";
-        curCart ??= "";
-
-        if (curId != "")
-        {
-            try
-            {
-                DbFunctions.UpdateUserCart(int.Parse(curId), curCart);
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                return Ok(e.Message);
-            }
-        }
-        
-        return BadRequest("current_user_is_unknown");
-    }
-
-    [HttpPost]
-    public IActionResult TestDbRequest()
-    {
-        DbFunctions.DeleteExpiredUsers();
-
         var headers = HttpContext.Request.Headers;
-        if (headers.TryGetValue("username", out var username)
-            && headers.TryGetValue("password", out var password)
-            && headers.TryGetValue("cart", out var cart))
+        if (headers.TryGetValue("cart", out var cart))
         {
-            if (username == "" ^ password == "") return BadRequest("Пароль без логина или логин без пароля!");
+            var cookies = HttpContext.Request.Cookies;
+            cookies.TryGetValue("id", out var curId);
+            curId ??= "";
 
-            var date = username == ""
-                ? DateOnly.FromDateTime(DateTime.Now).AddDays(3)
-                : DateOnly.FromDateTime(DateTime.Now).AddYears(2);
+            if (curId != "")
+            {
+                try
+                {
+                    HttpContext.Response.Cookies.Append("cart", cart!);
+                    DbFunctions.UpdateUserCart(int.Parse(curId), cart!);
+                    return Ok("");
+                }
+                catch (Exception e)
+                {
+                    return BadRequest(e.Message);
+                }
+            }
 
-            DbFunctions.AddUser(username!, password!, cart!, date);
-            return Ok();
+            return BadRequest("current_user_is_unknown");
         }
 
-        return BadRequest("Некорректные заголовки");
+        return BadRequest("incorrect_headers");
     }
+
+    // [HttpPost]
+    // public IActionResult TestDbRequest()
+    // {
+    //     DbFunctions.DeleteExpiredUsers();
+    //
+    //     var headers = HttpContext.Request.Headers;
+    //     if (headers.TryGetValue("username", out var username)
+    //         && headers.TryGetValue("password", out var password)
+    //         && headers.TryGetValue("cart", out var cart))
+    //     {
+    //         if (username == "" ^ password == "") return BadRequest("Пароль без логина или логин без пароля!");
+    //
+    //         var date = username == ""
+    //             ? DateOnly.FromDateTime(DateTime.Now).AddDays(3)
+    //             : DateOnly.FromDateTime(DateTime.Now).AddYears(2);
+    //
+    //         DbFunctions.AddUser(username!, password!, cart!, date);
+    //         return Ok();
+    //     }
+    //
+    //     return BadRequest("Некорректные заголовки");
+    // }
 }

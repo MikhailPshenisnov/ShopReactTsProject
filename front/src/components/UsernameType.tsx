@@ -1,3 +1,4 @@
-export interface UsernameType {
+export interface CurUserType {
     username: string;
+    cart: string;
 }

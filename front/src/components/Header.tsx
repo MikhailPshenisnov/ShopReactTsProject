@@ -1,16 +1,18 @@
 import {FaCartShopping} from "react-icons/fa6";
 import {useState} from "react";
-import {Pokedex} from "./Pokedex.tsx";
-import Order from "./Order.tsx";
 import {NavLink} from "react-router-dom";
-import {useAppSelector} from "../redux/Hooks.tsx";
+import {Order} from "./Order.tsx";
+import {CartStringToPokedex} from "../App.tsx";
+import {AuthState} from "../redux/AuthSlice.tsx";
+import {ProductsState} from "../redux/ProductsSlice.tsx";
+
 
 const showOrders = (props: CartProps) => {
     let total = 0;
-    props.cartProducts.map(order => (total += order.price));
+    CartStringToPokedex(props.authState.cart, props.productsState.products).map(order => (total += order.price));
     return (
         <div>
-            {props.cartProducts.map(order => (
+            {CartStringToPokedex(props.authState.cart, props.productsState.products).map(order => (
                 <Order key={order.id} product={order} onDelete={props.onDelete}/>
             ))}
             <p className='total'>Итого: {new Intl.NumberFormat().format(total)}$</p>
@@ -27,20 +29,18 @@ const showEmptyCart = () => {
 }
 
 type CartProps = {
-    cartProducts: Pokedex[],
+    authState: AuthState,
+    productsState: ProductsState,
     onDelete: (deleteItemId: number) => void,
 };
 
 export default function Header(props: CartProps) {
     const [isCartOpen, setIsCartOpen] = useState(false);
 
-    const is_logged_in = useAppSelector((state) => state.auth.isLoggedIn);
-    const username = useAppSelector((state) => state.auth.username);
-
     return (
         <header>
             <div>
-                <span className="logo" >
+                <span className="logo">
                     <NavLink to={"/home"} style={{textDecoration: "none", color: "black"}}>Whatever u need</NavLink>
                 </span>
                 <ul className="nav">
@@ -52,11 +52,11 @@ export default function Header(props: CartProps) {
                     </li>
                     <li>
                         <NavLink to={"/login"} style={{textDecoration: "none", color: "black"}}>
-                            {!is_logged_in && (
+                            {!props.authState.isLoggedIn && (
                                 <>Личный кабинет</>
                             )}
-                            {is_logged_in && (
-                                <>{username}</>
+                            {props.authState.isLoggedIn && (
+                                <>{props.authState.username}</>
                             )}
 
                         </NavLink>
@@ -66,7 +66,7 @@ export default function Header(props: CartProps) {
                                 onClick={() => setIsCartOpen(!isCartOpen)}/>
                 {isCartOpen && (
                     <div className="cart-panel">
-                        {props.cartProducts.length > 0 ? showOrders(props) : showEmptyCart()}
+                        {CartStringToPokedex(props.authState.cart, props.productsState.products).length > 0 ? showOrders(props) : showEmptyCart()}
                     </div>
                 )}
             </div>

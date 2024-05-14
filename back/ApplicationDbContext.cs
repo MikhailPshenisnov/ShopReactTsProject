@@ -8,7 +8,7 @@ public class ApplicationDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<User>()
-            .HasKey(h => new { h.id, h.username, h.password, h.cart, h.end_date });
+            .HasKey(h => new { h.id });
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

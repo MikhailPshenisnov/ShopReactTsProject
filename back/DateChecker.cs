@@ -23,11 +23,10 @@ public static class DateChecker
         }
 
         var fs = File.Create("LastCheckDate.txt");
-        fs.Close();
-        
         var sw = new StreamWriter(fs);
         sw.Write(curDate.ToString());
         sw.Close();
+        fs.Close();
 
         StaticStorage.lastCheckDate = curDate;
 
@@ -36,16 +35,15 @@ public static class DateChecker
 
     private static bool SimpleCheckAndUpdateForLastCheckDate(DateOnly dateToCheck, DateOnly lastCheckDate)
     {
-        var res = dateToCheck > lastCheckDate.AddDays(3);
+        var res = dateToCheck > lastCheckDate;
         
         if (res)
         {
             using var fs = File.Create("LastCheckDate.txt");
-            fs.Close();
-            
             using var sw = new StreamWriter(fs);
             sw.Write(DateOnly.FromDateTime(DateTime.Now).ToString());
             sw.Close();
+            fs.Close();
 
             StaticStorage.lastCheckDate = DateOnly.FromDateTime(DateTime.Now);
         }
@@ -55,6 +53,6 @@ public static class DateChecker
     
     public static bool IsDateExpired(DateOnly dateToCheck)
     {
-        return dateToCheck < DateOnly.FromDateTime(DateTime.Now).AddDays(10);
+        return dateToCheck < DateOnly.FromDateTime(DateTime.Now);
     }
 }

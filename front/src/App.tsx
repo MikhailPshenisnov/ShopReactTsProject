@@ -9,65 +9,112 @@ import {ItemPage} from "./components/ItemPage.tsx";
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
 import {LoginPage} from "./components/LoginPage.tsx";
 import {PersonalPage} from "./components/PersonalPage.tsx";
-import {UsernameType} from "./components/UsernameType.tsx";
-import {useAppDispatch} from "./redux/Hooks.tsx";
-import {login} from "./redux/AuthSlice.tsx";
-import {GetProductsApi, GetUserApi, SetEmptyCookiesApi} from "./api/AppApi.tsx";
+import {CurUserType} from "./components/UsernameType.tsx";
+import {useAppDispatch, useAppSelector} from "./redux/Hooks.tsx";
+import {setIsLoggedIn, setUsername, setCart} from "./redux/AuthSlice.tsx";
+import {setProducts} from "./redux/ProductsSlice.tsx";
+import {GetProductsApi, GetUserApi, SetEmptyCookiesApi, UpdateUserCartApi} from "./api/AppApi.tsx";
 
+export const PokedexToCartString = (cartPokedex: Pokedex[]) => {
+    let result = '';
+    for (let i = 0; i < cartPokedex.length; i++) {
+        result += cartPokedex[i].id.toString();
+        if (i !== cartPokedex.length - 1) {
+            result += ';';
+        }
+    }
+    return result;
+}
+
+export const CartStringToPokedex = (cartString: string, products: Pokedex[]) => {
+    const result: Pokedex[] = [];
+    const cart: string[] = cartString.split(';')
+    for (let i = 0; i < cart.length; i++) {
+        for (let j = 0; j < products.length; j++) {
+            if (Number(cart[i]) === products[j].id) {
+                result.push(products[j]);
+                break;
+            }
+        }
+    }
+    return result;
+}
 
 export function App() {
-    const [data, setData] = useState<Pokedex[]>([]);
-    const [orders, setOrders] = useState<Pokedex[]>([]);
+    const products = useAppSelector((state) => state.products);
+    const auth = useAppSelector((state) => state.auth)
+
+    const [tmpProducts, setTmpProducts] = useState<Pokedex[]>([]);
+    const [tmpUserData, setTmpUserData] = useState<CurUserType>({username: "", cart: ""});
+
     const [curCategory, setCurCategory] = useState<Category>(Category.All);
-    const [curData, setCurData] = useState<Pokedex[]>([]);
+    const [curProducts, setCurProducts] = useState<Pokedex[]>([]);
 
     const [isOneItemMode, setIsOneItemMode] = useState<boolean>(false);
     const [curOneItem, setCurOneItem] = useState<Pokedex>();
 
     const dispatch = useAppDispatch();
-    const [curUser, setCurUser] = useState<UsernameType>( {username: ""});
-    
+
     useEffect(() => {
         SetEmptyCookiesApi();
 
         GetProductsApi().then((res) => {
-            setData(res.data);
+            setTmpProducts(res.data);
         });
 
         GetUserApi().then((res) => {
-            setCurUser(res.data);
+            setTmpUserData(res.data);
         });
     }, [])
 
     useEffect(() => {
-        if (curCategory === Category.All) {
-            setCurData(data);
-        } else {
-            setCurData(data.filter(el => el.category === curCategory));
-        }
-    }, [curCategory, data]);
+        dispatch(setProducts(tmpProducts))
+    }, [tmpProducts]);
 
     useEffect(() => {
-        if (curUser.username !== "") {
-            dispatch(login(curUser.username))
+        dispatch(setUsername(tmpUserData.username));
+        dispatch(setCart(tmpUserData.cart));
+        if (tmpUserData.username != "") {
+            dispatch(setIsLoggedIn(true));
+        } else {
+            dispatch(setIsLoggedIn(false));
         }
-    }, [curUser]);
+    }, [tmpUserData]);
+
+    useEffect(() => {
+        UpdateUserCartApi(auth.cart).then((res) => {
+            if (res.data !== "") {
+                console.log(res.data);
+            }
+        })
+    }, [auth.cart]);
+
+    useEffect(() => {
+        if (curCategory === Category.All) {
+            setCurProducts(products.products);
+        } else {
+            setCurProducts(products.products.filter(el => el.category === curCategory));
+        }
+    }, [curCategory, products.products]);
 
     function addToOrder(newItem: Pokedex) {
-        let flag: boolean = false;
+        const orders = CartStringToPokedex(auth.cart, products.products);
+        let flag = false;
         orders.map((oldItem: Pokedex) => {
             if (oldItem.id === newItem.id) {
                 flag = true;
             }
         })
-
         if (!flag) {
-            setOrders([...orders, newItem]);
+            orders.push(newItem);
+            dispatch(setCart(PokedexToCartString(orders)));
         }
     }
 
     function deleteFromOrder(deleteItemId: number) {
-        setOrders(orders.filter(el => el.id !== deleteItemId));
+        let orders = CartStringToPokedex(auth.cart, products.products);
+        orders = orders.filter(el => el.id !== deleteItemId);
+        dispatch(setCart(PokedexToCartString(orders)));
     }
 
     function chooseCategory(category: Category) {
@@ -79,22 +126,21 @@ export function App() {
         setCurOneItem(product);
     }
 
-
     return (
         <div className='wrapper'>
             <BrowserRouter>
-                <Header cartProducts={orders} onDelete={deleteFromOrder}/>
+                <Header authState={auth} productsState={products} onDelete={deleteFromOrder}/>
                 <Routes>
-                    <Route path="/" element={<Navigate to="/home"/>} />
+                    <Route path="/" element={<Navigate to="/home"/>}/>
 
                     <Route path="/home" element={
                         <>
                             <Categories chooseCategory={chooseCategory}/>
-                            <Items curData={curData} onAdd={addToOrder} onShowItemPage={ShowItemPage}/>
+                            <Items curData={curProducts} onAdd={addToOrder} onShowItemPage={ShowItemPage}/>
                             {isOneItemMode && (
                                 <ItemPage product={curOneItem!} onAdd={addToOrder} onShowItemPage={ShowItemPage}/>)}
                         </>
-                    } />
+                    }/>
                     <Route path="/about" element={
                         <div className="about">
                             <h2>О нас</h2>

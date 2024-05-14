@@ -1,6 +1,8 @@
 import {Category} from "./Pokedex.tsx";
 
-type CategoriesProps = { chooseCategory: (category: Category) => void };
+type CategoriesProps = {
+    chooseCategory: (category: Category) => void
+};
 
 export function Categories(props: CategoriesProps) {
     return (

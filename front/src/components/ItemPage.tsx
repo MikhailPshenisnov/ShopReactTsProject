@@ -1,9 +1,13 @@
 import {Pokedex} from "./Pokedex.tsx";
 
-type ItemPageProps = {product: Pokedex, onAdd: (product: Pokedex) => void, onShowItemPage: (product: Pokedex) => void};
+type ItemPageProps = {
+    product: Pokedex,
+    onAdd: (product: Pokedex) => void,
+    onShowItemPage: (product: Pokedex) => void
+};
 
 export function ItemPage(props: ItemPageProps) {
-    return(
+    return (
         <div className="one-item">
             <div>
                 <img src={props.product.image} alt={props.product.title}
