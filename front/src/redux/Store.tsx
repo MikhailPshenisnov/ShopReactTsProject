@@ -1,4 +1,4 @@
-import { configureStore } from '@reduxjs/toolkit'
+import {configureStore} from '@reduxjs/toolkit'
 import {authSlice} from "./AuthSlice.tsx";
 import {productsSlice} from "./ProductsSlice.tsx";
 

@@ -18,7 +18,9 @@ body {
     margin: 50px auto;
 }
 
-header {position: relative}
+header {
+    position: relative
+}
 
 header .logo {
     font-weight: 600;
@@ -31,7 +33,7 @@ header ul.nav {
     list-style: none;
 }
 
-header ul.nav li{
+header ul.nav li {
     display: inline;
     margin-left: 25px;
     cursor: pointer;
@@ -42,31 +44,31 @@ header ul.nav li:hover {
     opacity: 0.5;
 }
 
-header .cart{
+header .cart {
     float: right;
     cursor: pointer;
     transition: color, transform 500ms ease;
 }
 
-header .cart:hover, header .cart.active{
+header .cart:hover, header .cart.active {
     color: #dc3d3d;
     transform: scale(1.5);
 }
 
-header .cart-panel{
+header .cart-panel {
     position: absolute;
     top: 30px;
     right: 0;
     width: 450px;
     background: #fafafa;
-    -webkit-box-shadow: -30px 19px 107px -14px rgba(96,96,96,1);
-    -moz-box-shadow: -30px 19px 107px -14px rgba(96,96,96,1);
-    box-shadow: -30px 19px 107px -14px rgba(96,96,96,1);
+    -webkit-box-shadow: -30px 19px 107px -14px rgba(96, 96, 96, 1);
+    -moz-box-shadow: -30px 19px 107px -14px rgba(96, 96, 96, 1);
+    box-shadow: -30px 19px 107px -14px rgba(96, 96, 96, 1);
     z-index: 1000;
     padding: 20px 20px 0;
 }
 
-header .cart-panel .item{
+header .cart-panel .item {
     width: 100%;
     float: left;
     margin-bottom: 20px;
@@ -77,23 +79,23 @@ header .cart-panel .empty-cart {
     margin-bottom: 20px;
 }
 
-header .cart-panel .item img{
+header .cart-panel .item img {
     width: 70px;
     float: left;
     margin-right: 20px;
     border-radius: 5px;
 }
 
-header .cart-panel .item h2{
+header .cart-panel .item h2 {
     font-size: 20px;
     margin-bottom: 10px;
 }
 
-header .cart-panel .item p{
+header .cart-panel .item p {
     color: #797979;
 }
 
-header .cart-panel .item .delete-product{
+header .cart-panel .item .delete-product {
     color: #ca5252;
     float: right;
     position: relative;
@@ -102,7 +104,7 @@ header .cart-panel .item .delete-product{
     transition: color, transform 500ms ease;
 }
 
-header .cart-panel .item .delete-product:hover{
+header .cart-panel .item .delete-product:hover {
     color: #dc3d3d;
     transform: scale(1.5);
 }
@@ -158,7 +160,7 @@ header .presentation:before {
     transition: all 500ms ease;
 }
 
-.categories div:hover{
+.categories div:hover {
     border-color: silver;
     transform: scale(1.1);
 }
@@ -200,7 +202,7 @@ main .item {
 }
 
 main .item img,
-.one-item img{
+.one-item img {
     width: 100%;
     border-radius: 10px 10px 0 0;
     overflow: hidden;
@@ -209,20 +211,22 @@ main .item img,
 }
 
 main .item img:hover,
-.one-item img:hover{
+.one-item img:hover {
     transform: scale(1.05);
 }
 
 main h2, main p, main b,
-.one-item h2, .one-item p, .one-item b{
+.one-item h2, .one-item p, .one-item b {
     margin: 10px 20px;
     color: #333;
 }
 
-main b, .one-item b {color: #5fa36a}
+main b, .one-item b {
+    color: #5fa36a
+}
 
 main .add-to-cart,
-.one-item .add-to-cart{
+.one-item .add-to-cart {
     position: absolute;
     right: 20px;
     bottom: 20px;
@@ -235,10 +239,11 @@ main .add-to-cart,
     border-radius: 50%;
     cursor: pointer;
     font-weight: 600;
-    transition: transform 500ms ease;}
+    transition: transform 500ms ease;
+}
 
 main .add-to-cart:hover,
-.one-item .add-to-cart:hover{
+.one-item .add-to-cart:hover {
     transform: scale(1.5);
 }
 
@@ -259,4 +264,46 @@ footer {
     text-align: center;
     font-weight: 300;
     font-size: 15px;
+}
+
+.login_password_group {
+    display: flex;
+    align-items: center;
+}
+
+.login_label {
+    horiz-align: left;
+    padding-bottom: 10px;
+    padding-top: 10px;
+}
+
+.password_label {
+    horiz-align: left;
+    padding-bottom: 10px;
+    padding-top: 10px;
+}
+
+.err_label > b {
+    padding-bottom: 10px;
+    padding-top: 10px;
+    padding-left: 50px;
+}
+
+.button_group {
+    padding-top: 10px;
+}
+
+.button_group > Button {
+    padding: 10px;
+    width: 100px;
+}
+
+.personal-info > h2 {
+    padding-bottom: 10px;
+}
+
+.personal-info > Button {
+    margin-top: 10px;
+    padding: 10px;
+    width: 100px;
 }

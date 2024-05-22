@@ -5,6 +5,7 @@ namespace back;
 public class ApplicationDbContext : DbContext
 {
     public DbSet<User> users { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<User>()

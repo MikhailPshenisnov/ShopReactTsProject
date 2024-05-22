@@ -8,15 +8,15 @@ export const appApiIns = axios.create({
     withCredentials: true
 })
 
-export function GetProductsApi(){
+export function GetProductsApi() {
     return appApiIns.get("GetProducts");
 }
 
-export function GetUserApi(){
+export function GetUserApi() {
     return appApiIns.get("GetUser");
 }
 
-export function RegisterUserApi(username: string, password: string){
+export function RegisterUserApi(username: string, password: string) {
     return appApiIns.get("RegisterUser", {
         headers: {
             "username": username,
@@ -25,7 +25,7 @@ export function RegisterUserApi(username: string, password: string){
     });
 }
 
-export function LoginUserApi(username: string, password: string){
+export function LoginUserApi(username: string, password: string) {
     return appApiIns.get("LoginUser", {
         headers: {
             "username": username,
@@ -34,11 +34,11 @@ export function LoginUserApi(username: string, password: string){
     });
 }
 
-export function LogoutUserApi(){
+export function LogoutUserApi() {
     return appApiIns.get("LogoutUser");
 }
 
-export function SetEmptyCookiesApi(){
+export function SetEmptyCookiesApi() {
     return appApiIns.get(`SetEmptyCookies`);
 }
 

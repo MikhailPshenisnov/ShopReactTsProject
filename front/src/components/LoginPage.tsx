@@ -37,17 +37,23 @@ export function LoginPage() {
             <Form.Group className="mb-3">
                 <div className="login_password_group">
                     <div className="text_labels">
-                        <Form.Control id="usernameText" type="login" placeholder="Enter username..." onChange={
-                            (e) => setUsrnm(e.target.value)
-                        }/>
-                        <Form.Control id="passwordText" type="password" placeholder="Enter password..." onChange={
-                            (e) => setPswd(e.target.value)
-                        }/>
+                        <div className="login_label">
+                            <Form.Control id="usernameText" type="login" placeholder="Enter username..." onChange={
+                                (e) => setUsrnm(e.target.value)
+                            }/>
+                        </div>
+                        <div className="password_label">
+                            <Form.Control id="passwordText" type="password" placeholder="Enter password..." onChange={
+                                (e) => setPswd(e.target.value)
+                            }/>
+                        </div>
                     </div>
 
-                    {errorMessage !== "" && (
-                        <h2>{errorMessage}</h2>
-                    )}
+                    <div className="err_label">
+                        {errorMessage !== "" && (
+                            <b>{errorMessage}</b>
+                        )}
+                    </div>
                 </div>
             </Form.Group>
 

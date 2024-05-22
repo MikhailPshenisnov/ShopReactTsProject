@@ -22,20 +22,6 @@ public class ShopApiController : ControllerBase
         return Ok(json);
     }
 
-    // [HttpGet("{username?}")]
-    // public IActionResult SaveUser(string? username)
-    // {
-    //     if (username is null)
-    //     {
-    //         HttpContext.Response.Cookies.Append("username", "");
-    //         return Ok();
-    //     }
-    //
-    //     if (username.Length < 4 || username.Any(char.IsPunctuation)) return Ok("incorrect_login");
-    //     HttpContext.Response.Cookies.Append("username", username);
-    //     return Ok();
-    // }
-
     [HttpGet]
     public IActionResult RegisterUser()
     {
@@ -66,6 +52,8 @@ public class ShopApiController : ControllerBase
             DbFunctions.MakeConstUser(int.Parse(curUserId), username!, password!);
             HttpContext.Response.Cookies.Append("username", username!);
 
+            DbFunctions.UpdateUserDate(int.Parse(curUserId));
+
             return Ok("");
         }
 
@@ -88,7 +76,7 @@ public class ShopApiController : ControllerBase
             if (username == "" || password == "") return Ok("fill_in_your_login_and_password");
 
             if (username.ToString().Length < 6
-                || username.ToString().Any(char.IsPunctuation)) 
+                || username.ToString().Any(char.IsPunctuation))
                 return Ok("incorrect_login_or_password");
 
             if (password.ToString().Length < 8
@@ -96,19 +84,22 @@ public class ShopApiController : ControllerBase
                 || !password.ToString().Any(char.IsDigit)
                 || !password.ToString().Any(char.IsPunctuation)
                 || !password.ToString().Any(char.IsLower)
-                || !password.ToString().Any(char.IsUpper)) 
+                || !password.ToString().Any(char.IsUpper))
                 return Ok("incorrect_login_or_password");
 
             var tmpUser = DbFunctions.TryLoginUser(username!, password!);
 
             if (tmpUser is null)
                 return Ok("incorrect_account_login_or_password");
-            
+
             var newCart = curUsername == "" ? DbFunctions.CombineCart(curCart, tmpUser.cart) : tmpUser.cart;
-            
+
             HttpContext.Response.Cookies.Append("id", tmpUser.id.ToString());
             HttpContext.Response.Cookies.Append("username", tmpUser.username);
             HttpContext.Response.Cookies.Append("cart", newCart);
+
+            DbFunctions.UpdateUserDate(tmpUser.id);
+
             return Ok("");
         }
 
@@ -128,7 +119,7 @@ public class ShopApiController : ControllerBase
     [HttpGet]
     public IActionResult GetUser()
     {
-        DbFunctions.DeleteExpiredUsers();
+        var deletedUsers = DbFunctions.DeleteExpiredUsers();
 
         var cookies = HttpContext.Request.Cookies;
         cookies.TryGetValue("id", out var curId);
@@ -140,6 +131,10 @@ public class ShopApiController : ControllerBase
         curCart ??= "";
 
         if (curId == "") return InitializeUser("", "", "");
+
+        if (deletedUsers.Contains(int.Parse(curId))) return InitializeUser("", "", curCart);
+
+        DbFunctions.UpdateUserDate(Convert.ToInt32(int.Parse(curId)));
 
         var result =
             "{" +
@@ -157,7 +152,13 @@ public class ShopApiController : ControllerBase
         HttpContext.Response.Cookies.Append("id", addedUserId.ToString());
         HttpContext.Response.Cookies.Append("username", username);
         HttpContext.Response.Cookies.Append("cart", cart);
-        return Ok("");
+
+        var result =
+            "{" +
+            "\"username\":\"" + $"{username}" + "\"," +
+            "\"cart\":\"" + $"{cart}" + "\"" +
+            "}";
+        return Ok(result);
     }
 
     [HttpGet]
@@ -189,6 +190,7 @@ public class ShopApiController : ControllerBase
                 {
                     HttpContext.Response.Cookies.Append("cart", cart!);
                     DbFunctions.UpdateUserCart(int.Parse(curId), cart!);
+                    DbFunctions.UpdateUserDate(int.Parse(curId));
                     return Ok("");
                 }
                 catch (Exception e)
@@ -202,27 +204,4 @@ public class ShopApiController : ControllerBase
 
         return BadRequest("incorrect_headers");
     }
-
-    // [HttpPost]
-    // public IActionResult TestDbRequest()
-    // {
-    //     DbFunctions.DeleteExpiredUsers();
-    //
-    //     var headers = HttpContext.Request.Headers;
-    //     if (headers.TryGetValue("username", out var username)
-    //         && headers.TryGetValue("password", out var password)
-    //         && headers.TryGetValue("cart", out var cart))
-    //     {
-    //         if (username == "" ^ password == "") return BadRequest("Пароль без логина или логин без пароля!");
-    //
-    //         var date = username == ""
-    //             ? DateOnly.FromDateTime(DateTime.Now).AddDays(3)
-    //             : DateOnly.FromDateTime(DateTime.Now).AddYears(2);
-    //
-    //         DbFunctions.AddUser(username!, password!, cart!, date);
-    //         return Ok();
-    //     }
-    //
-    //     return BadRequest("Некорректные заголовки");
-    // }
 }
